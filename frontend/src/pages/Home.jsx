@@ -28,7 +28,7 @@ export default function Home() {
         setHealth(res.data);
         setError(null);
       } catch (err) {
-        setError(err.message || 'Unable to reach MediCare API');
+        setError(err.message || t('unableToReachApi'));
         setHealth(null);
       } finally {
         setLoading(false);

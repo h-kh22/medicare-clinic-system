@@ -12,7 +12,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   if (user) return <Navigate to={`/${user.role}/dashboard`} replace />;
-  const submit = async (event) => { event.preventDefault(); setLoading(true); setError(''); try { const loggedIn = await login(form.email, form.password); navigate(`/${loggedIn.role}/dashboard`); } catch (err) { setError(err.response?.data?.message || 'Unable to sign in.'); } finally { setLoading(false); } };
+  const submit = async (event) => { event.preventDefault(); setLoading(true); setError(''); try { const loggedIn = await login(form.email, form.password); navigate(`/${loggedIn.role}/dashboard`); } catch (err) { setError(err.response?.data?.message || t('unableToSignIn')); } finally { setLoading(false); } };
   return <AuthCard title={t('welcomeBack')} onSubmit={submit} error={error} loading={loading}>
     <input className="field" type="email" placeholder={t('emailAddress')} required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
     <input className="field" type="password" placeholder={t('password')} required value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />

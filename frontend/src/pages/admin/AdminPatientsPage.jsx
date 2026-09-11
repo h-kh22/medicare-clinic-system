@@ -7,8 +7,10 @@ import PatientTable from '../../components/patients/PatientTable';
 import SearchBar from '../../components/common/SearchBar';
 import Pagination from '../../components/common/Pagination';
 import { getPatients } from '../../services/patientService';
+import { useTranslation } from 'react-i18next';
 
 export default function AdminPatientsPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [patients, setPatients] = useState([]);
@@ -26,7 +28,7 @@ export default function AdminPatientsPage() {
       setPatients(res.data.data.patients);
       setMeta(res.data.data.meta);
     } catch (err) {
-      setError(err.response?.data?.message ?? 'Failed to load patients.');
+      setError(err.response?.data?.message ?? t('failedToLoadPatients'));
     } finally {
       setLoading(false);
     }
@@ -51,10 +53,10 @@ export default function AdminPatientsPage() {
             <div>
               <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
                 <Users size={24} className="text-teal-600" />
-                Patients
+                {t('patients')}
               </h1>
               <p className="text-sm text-slate-500 mt-1">
-                Manage and view all registered patients.
+                {t('manageRegisteredPatients')}
               </p>
             </div>
             <button
@@ -63,23 +65,23 @@ export default function AdminPatientsPage() {
                          text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-100 transition"
             >
               <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
-              Refresh
+              {t('refresh')}
             </button>
           </div>
 
           {/* Stats card */}
           {meta && (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <StatCard label="Total Patients" value={meta.total} color="teal" />
-              <StatCard label="Page" value={`${meta.current_page} / ${meta.last_page}`} color="emerald" />
-              <StatCard label="Per Page" value={meta.per_page} color="cyan" />
+              <StatCard label={t('totalPatients')} value={meta.total} color="teal" />
+              <StatCard label={t('page')} value={`${meta.current_page} / ${meta.last_page}`} color="emerald" />
+              <StatCard label={t('perPage')} value={meta.per_page} color="cyan" />
             </div>
           )}
 
           {/* Search bar */}
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
             <SearchBar
-              placeholder="Search by name, email or phone…"
+              placeholder={t('searchPatients')}
               onSearch={handleSearch}
             />
           </div>

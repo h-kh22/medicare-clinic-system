@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
  * - onSearch (function) — receives the trimmed search string
  * - initialValue (string)
  */
-export default function SearchBar({ placeholder = 'Search…', onSearch, initialValue = '' }) {
+export default function SearchBar({ placeholder, onSearch, initialValue = '' }) {
   const { t } = useTranslation();
   const [value, setValue] = useState(initialValue);
   const timerRef = useRef(null);
@@ -41,7 +41,7 @@ export default function SearchBar({ placeholder = 'Search…', onSearch, initial
         type="text"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder={placeholder === 'Search…' ? t('search') : placeholder}
+        placeholder={placeholder || t('search')}
         className="w-full pl-9 pr-9 py-2.5 text-sm rounded-xl border border-slate-200 bg-white
                    shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent
                    transition placeholder-slate-400 text-slate-700"

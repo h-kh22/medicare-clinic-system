@@ -53,7 +53,7 @@ export default function PatientCard({ patient, actions }) {
             {patient.gender && (
               <span className={`inline-flex items-center gap-1 mt-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${genderBadge}`}>
                 {genderIcon}
-                {patient.gender.charAt(0).toUpperCase() + patient.gender.slice(1)}
+                {t(patient.gender)}
               </span>
             )}
           </div>

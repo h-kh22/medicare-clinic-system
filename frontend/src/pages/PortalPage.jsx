@@ -34,7 +34,7 @@ export default function PortalPage({ role }) {
         doctors: role === 'admin' ? responses[3].data.data || [] : [],
         patients: role !== 'patient' ? (responses[role === 'admin' ? 4 : 3].data.data.patients || []) : [],
       });
-    }).catch((requestError) => setError(requestError.response?.data?.message || 'Unable to load dashboard data.'));
+    }).catch((requestError) => setError(requestError.response?.data?.message || t('unableToLoadDashboard')));
   }, [role]);
 
   const today = new Date().toISOString().slice(0, 10);

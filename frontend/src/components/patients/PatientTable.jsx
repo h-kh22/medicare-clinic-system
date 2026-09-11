@@ -99,7 +99,7 @@ export default function PatientTable({ patients = [], onView, showActions = true
                       ? 'bg-pink-50 text-pink-700'
                       : 'bg-slate-100 text-slate-600'
                     }`}>
-                    {patient.gender.charAt(0).toUpperCase() + patient.gender.slice(1)}
+                    {t(patient.gender)}
                   </span>
                 ) : (
                   <span className="text-slate-300">—</span>
