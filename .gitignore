@@ -1,0 +1,29 @@
+# MediCare Root Git Ignore
+
+# Backend
+/backend/.env
+/backend/.env.backup
+/backend/.env.production
+/backend/vendor/
+/backend/node_modules/
+/backend/storage/*.key
+/backend/storage/logs/*.log
+/backend/storage/framework/cache/*
+/backend/storage/framework/sessions/*
+/backend/storage/framework/views/*
+/backend/public/storage
+/backend/public/hot
+/backend/public/build
+
+# Frontend
+/frontend/.env
+/frontend/.env.local
+/frontend/node_modules/
+/frontend/dist/
+
+# System & IDE files
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/

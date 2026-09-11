@@ -1,0 +1,85 @@
+{
+  "info": {
+    "name": "MediCare Clinic Management API",
+    "description": "Development API flow for MediCare. Run Authentication/Login first, then use the returned token in the environment.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000/api" },
+    { "key": "auth_token", "value": "" },
+    { "key": "doctor_id", "value": "1" },
+    { "key": "patient_id", "value": "1" },
+    { "key": "appointment_id", "value": "1" },
+    { "key": "medical_record_id", "value": "1" },
+    { "key": "prescription_id", "value": "1" },
+    { "key": "specialty_id", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "01 Authentication",
+      "item": [
+        { "name": "Register patient", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"New Patient\",\n  \"email\": \"new.patient@example.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"phone\": \"555-0100\"\n}" }, "url": "{{base_url}}/register" } },
+        { "name": "Login", "event": [{ "listen": "test", "script": { "exec": ["if (pm.response.code === 200 || pm.response.code === 201) {", "  pm.environment.set('auth_token', pm.response.json().data.token);", "}"] } }], "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@medicare.test\",\n  \"password\": \"password123\"\n}" }, "url": "{{base_url}}/login" } },
+        { "name": "Current user", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }], "url": "{{base_url}}/me" } },
+        { "name": "Logout", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }], "url": "{{base_url}}/logout" } }
+      ]
+    },
+    {
+      "name": "02 Specialties",
+      "item": [
+        { "name": "List specialties", "request": { "method": "GET", "url": "{{base_url}}/specialties" } },
+        { "name": "Create specialty (admin)", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Neurology\",\n  \"description\": \"Brain and nervous system care\"\n}" }, "url": "{{base_url}}/admin/specialties" } },
+        { "name": "Update specialty (admin)", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"description\": \"Updated description\"\n}" }, "url": "{{base_url}}/admin/specialties/{{specialty_id}}" } },
+        { "name": "Delete specialty (admin)", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }], "url": "{{base_url}}/admin/specialties/{{specialty_id}}" } }
+      ]
+    },
+    {
+      "name": "03 Doctors",
+      "item": [
+        { "name": "List public doctors", "request": { "method": "GET", "url": "{{base_url}}/doctors" } },
+        { "name": "Doctor details", "request": { "method": "GET", "url": "{{base_url}}/doctors/{{doctor_id}}" } },
+        { "name": "List doctors (admin)", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }], "url": "{{base_url}}/admin/doctors?search=&page=1" } },
+        { "name": "Create doctor (admin)", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Dr. New Clinician\",\n  \"email\": \"new.doctor@medicare.test\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"specialty_id\": {{specialty_id}},\n  \"license_number\": \"MED-NEW-001\",\n  \"consultation_fee\": 100\n}" }, "url": "{{base_url}}/admin/doctors" } },
+        { "name": "Update doctor (admin)", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"bio\": \"Updated biography\"\n}" }, "url": "{{base_url}}/admin/doctors/{{doctor_id}}" } },
+        { "name": "Deactivate doctor (admin)", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }], "url": "{{base_url}}/admin/doctors/{{doctor_id}}" } }
+      ]
+    },
+    {
+      "name": "04 Patients",
+      "item": [
+        { "name": "List patients (admin/doctor)", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }], "url": "{{base_url}}/patients?search=&page=1" } },
+        { "name": "My patient profile", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }], "url": "{{base_url}}/patients/me" } },
+        { "name": "Patient details", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }], "url": "{{base_url}}/patients/{{patient_id}}" } },
+        { "name": "Update patient profile", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"address\": \"Updated address\",\n  \"emergency_contact\": \"Emergency contact\"\n}" }, "url": "{{base_url}}/patients/{{patient_id}}" } }
+      ]
+    },
+    {
+      "name": "05 Appointments",
+      "item": [
+        { "name": "List appointments", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }], "url": "{{base_url}}/appointments?status=pending&page=1" } },
+        { "name": "Create appointment (patient)", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"doctor_id\": {{doctor_id}},\n  \"appointment_date\": \"2026-12-01\",\n  \"appointment_time\": \"10:00\",\n  \"reason\": \"Routine consultation\"\n}" }, "url": "{{base_url}}/appointments" } },
+        { "name": "Appointment details", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }], "url": "{{base_url}}/appointments/{{appointment_id}}" } },
+        { "name": "Confirm/complete appointment", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"status\": \"confirmed\"\n}" }, "url": "{{base_url}}/appointments/{{appointment_id}}" } },
+        { "name": "Cancel appointment", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }], "url": "{{base_url}}/appointments/{{appointment_id}}" } }
+      ]
+    },
+    {
+      "name": "06 Medical Records",
+      "item": [
+        { "name": "List medical records", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }], "url": "{{base_url}}/medical-records" } },
+        { "name": "Create medical record (doctor)", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"appointment_id\": {{appointment_id}},\n  \"diagnosis\": \"Stable\",\n  \"symptoms\": \"None\",\n  \"treatment\": \"Continue care\",\n  \"notes\": \"Follow up as needed\"\n}" }, "url": "{{base_url}}/medical-records" } },
+        { "name": "Medical record details", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }], "url": "{{base_url}}/medical-records/{{medical_record_id}}" } },
+        { "name": "Update medical record", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"notes\": \"Updated notes\"\n}" }, "url": "{{base_url}}/medical-records/{{medical_record_id}}" } }
+      ]
+    },
+    {
+      "name": "07 Prescriptions",
+      "item": [
+        { "name": "List prescriptions", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }], "url": "{{base_url}}/prescriptions" } },
+        { "name": "Create prescription (doctor)", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"appointment_id\": {{appointment_id}},\n  \"prescription_date\": \"2026-12-01\",\n  \"notes\": \"Take as directed\",\n  \"items\": [{\n    \"medicine_name\": \"Paracetamol\",\n    \"dosage\": \"500 mg\",\n    \"frequency\": \"3 times daily\",\n    \"duration\": \"5 days\",\n    \"instructions\": \"After meals\"\n  }]\n}" }, "url": "{{base_url}}/prescriptions" } },
+        { "name": "Prescription details", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }], "url": "{{base_url}}/prescriptions/{{prescription_id}}" } },
+        { "name": "Update prescription", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"notes\": \"Updated instructions\"\n}" }, "url": "{{base_url}}/prescriptions/{{prescription_id}}" } }
+      ]
+    }
+  ]
+}
