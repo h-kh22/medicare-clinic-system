@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateDoctorRequest extends FormRequest
 {
@@ -15,7 +16,7 @@ class UpdateDoctorRequest extends FormRequest
         $userId = is_object($doctor) ? $doctor->user_id : null;
         return [
             'name' => ['sometimes', 'string', 'max:255'],
-            'email' => ['sometimes', 'email', 'unique:users,email,'.$userId],
+            'email' => ['sometimes', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($userId)],
             'phone' => ['sometimes', 'nullable', 'string', 'max:20'],
             'password' => ['sometimes', 'nullable', 'string', 'min:8', 'confirmed'],
             'specialty_id' => ['sometimes', 'integer', 'exists:specialties,id'],

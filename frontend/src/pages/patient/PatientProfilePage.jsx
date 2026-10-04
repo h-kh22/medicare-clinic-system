@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Pencil, Save, X } from 'lucide-react';
-import MainLayout from '../../layouts/MainLayout';
+import AdminLayout from '../../layouts/AdminLayout';
 import RoleGuard from '../../components/guards/RoleGuard';
 import PatientCard from '../../components/patients/PatientCard';
 import { getMyPatientProfile, updatePatient } from '../../services/patientService';
@@ -13,6 +13,7 @@ export default function PatientProfilePage() {
   const [loading, setLoading]   = useState(true);
   const [saving, setSaving]     = useState(false);
   const [error, setError]       = useState('');
+  const [emailError, setEmailError] = useState('');
   const [success, setSuccess]   = useState('');
   const [form, setForm]         = useState({});
 
@@ -20,7 +21,7 @@ export default function PatientProfilePage() {
     const fetchProfile = async () => {
       try {
         const res = await getMyPatientProfile();
-        const p = res.data.data;
+        const p = res.data?.data || {};
         setPatient(p);
         setForm({
           name:              p.name              ?? '',
@@ -43,11 +44,13 @@ export default function PatientProfilePage() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+    if (name === 'email') setEmailError('');
   };
 
   const handleSave = async () => {
     setSaving(true);
     setError('');
+    setEmailError('');
     setSuccess('');
     try {
       const res = await updatePatient(patient.id, form);
@@ -56,12 +59,14 @@ export default function PatientProfilePage() {
       setSuccess(t('profileUpdated'));
       setEditing(false);
     } catch (err) {
-      const errors = err.response?.data?.data;
-      if (errors && typeof errors === 'object') {
-        const msgs = Object.values(errors).flat().join(' ');
-        setError(msgs);
+      const responseData = err.response?.data || {};
+      const validationErrors = responseData.errors || responseData.data?.errors || responseData.data;
+      if (validationErrors && typeof validationErrors === 'object') {
+        if (validationErrors.email) setEmailError(t('emailAlreadyRegistered'));
+        const otherErrors = Object.entries(validationErrors).filter(([field]) => field !== 'email').flatMap(([, messages]) => messages);
+        setError(otherErrors.join(' ') || (validationErrors.email ? '' : responseData.message ?? t('updateFailed')));
       } else {
-        setError(err.response?.data?.message ?? t('updateFailed'));
+        setError(responseData.message ?? t('updateFailed'));
       }
     } finally {
       setSaving(false);
@@ -70,6 +75,7 @@ export default function PatientProfilePage() {
 
   const handleCancel = () => {
     setEditing(false);
+    setEmailError('');
     setError('');
     setSuccess('');
     // Reset form to current patient data
@@ -88,7 +94,7 @@ export default function PatientProfilePage() {
 
   return (
     <RoleGuard roles={['patient']}>
-      <MainLayout>
+      <AdminLayout>
         <div className="max-w-2xl mx-auto px-4 py-10">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-slate-800">{t('myProfile')}</h1>
@@ -118,7 +124,7 @@ export default function PatientProfilePage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Field label={t('fullName')} name="name" value={form.name} onChange={handleChange} />
-                <Field label={t('email')} name="email" type="email" value={form.email} onChange={handleChange} />
+                <Field label={t('email')} name="email" type="email" value={form.email} onChange={handleChange} error={emailError} />
                 <Field label={t('phone')} name="phone" value={form.phone} onChange={handleChange} placeholder="+1 555 0000" />
                 <Field label={t('dateOfBirth')} name="date_of_birth" type="date" value={form.date_of_birth} onChange={handleChange} />
 
@@ -164,7 +170,7 @@ export default function PatientProfilePage() {
           ) : (
             /* ── Profile Card ── */
             <PatientCard
-              patient={patient}
+              patient={patient || {}}
               actions={
                 <button
                   onClick={() => setEditing(true)}
@@ -178,12 +184,12 @@ export default function PatientProfilePage() {
             />
           )}
         </div>
-      </MainLayout>
+      </AdminLayout>
     </RoleGuard>
   );
 }
 
-function Field({ label, name, value, onChange, type = 'text', placeholder, className = '' }) {
+function Field({ label, name, value, onChange, type = 'text', placeholder, className = '', error }) {
   return (
     <div className={className}>
       <label className="block text-xs font-medium text-slate-500 mb-1.5 uppercase tracking-wide">
@@ -195,10 +201,9 @@ function Field({ label, name, value, onChange, type = 'text', placeholder, class
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        className="w-full px-3 py-2.5 text-sm rounded-xl border border-slate-200
-                   focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent
-                   transition placeholder-slate-400 text-slate-700 bg-white"
+        className={`w-full px-3 py-2.5 text-sm rounded-xl border ${error ? 'border-rose-500' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition placeholder-slate-400 text-slate-700 bg-white`}
       />
+      {error && <p className="mt-1 text-sm text-rose-600" role="alert">{error}</p>}
     </div>
   );
 }

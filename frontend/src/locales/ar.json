@@ -220,6 +220,7 @@
   "unableToReachApi": "تعذر الوصول إلى واجهة ميدي كير البرمجية",
   "unableToSignIn": "تعذر تسجيل الدخول.",
   "unableToRegister": "تعذر إنشاء الحساب.",
+  "emailAlreadyRegistered": "هذا البريد الإلكتروني مستخدم بالفعل، يرجى اختيار بريد إلكتروني آخر.",
   "unableToLoadDashboard": "تعذر تحميل بيانات لوحة التحكم.",
   "saved": "تم الحفظ",
   "unableToReachApi": "تعذر الوصول إلى واجهة ميدي كير البرمجية"

@@ -103,6 +103,21 @@ class AuthenticationTest extends TestCase
             ]);
     }
 
+    public function test_registration_rejects_an_email_already_used_by_any_role(): void
+    {
+        $response = $this->postJson('/api/register', [
+            'name' => 'Duplicate Account',
+            'email' => 'admin@medicare.test',
+            'password' => 'SecurePass123!',
+            'password_confirmation' => 'SecurePass123!',
+            'phone' => '+1-555-9988',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('status', false)
+            ->assertJsonStructure(['errors' => ['email']]);
+    }
+
     /**
      * 4. Test login with valid credentials for Admin, Doctor, and Patient.
      */

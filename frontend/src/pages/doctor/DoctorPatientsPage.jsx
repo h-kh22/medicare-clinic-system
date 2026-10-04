@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Stethoscope, RefreshCw } from 'lucide-react';
-import MainLayout from '../../layouts/MainLayout';
+import AdminLayout from '../../layouts/AdminLayout';
 import RoleGuard from '../../components/guards/RoleGuard';
 import PatientTable from '../../components/patients/PatientTable';
 import Pagination from '../../components/common/Pagination';
@@ -26,8 +26,8 @@ export default function DoctorPatientsPage() {
     setError('');
     try {
       const res = await getPatients({ page });
-      setPatients(res.data.data.patients);
-      setMeta(res.data.data.meta);
+      setPatients(res.data?.data?.patients || []);
+      setMeta(res.data?.data?.meta || null);
     } catch (err) {
       setError(err.response?.data?.message ?? t('failedToLoadPatients'));
     } finally {
@@ -41,7 +41,7 @@ export default function DoctorPatientsPage() {
 
   return (
     <RoleGuard roles={['doctor']}>
-      <MainLayout>
+      <AdminLayout>
         <div className="max-w-5xl mx-auto px-4 py-10 space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
@@ -89,7 +89,7 @@ export default function DoctorPatientsPage() {
             )}
           </div>
         </div>
-      </MainLayout>
+      </AdminLayout>
     </RoleGuard>
   );
 }

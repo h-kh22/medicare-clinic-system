@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Patient;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 /**
  * UpdatePatientRequest
@@ -25,10 +26,13 @@ class UpdatePatientRequest extends FormRequest
      */
     public function rules(): array
     {
+        $patient = $this->route('patient');
+        $userId = is_object($patient) ? $patient->user_id : $this->user()->id;
+
         return [
             // User account fields (name, email, phone)
             'name'              => ['sometimes', 'string', 'max:255'],
-            'email'             => ['sometimes', 'email', 'unique:users,email,' . $this->user()->id],
+            'email'             => ['sometimes', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($userId)],
             'phone'             => ['sometimes', 'nullable', 'string', 'max:20'],
 
             // Patient profile fields

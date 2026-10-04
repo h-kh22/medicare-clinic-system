@@ -220,6 +220,7 @@
   "unableToReachApi": "Unable to reach MediCare API",
   "unableToSignIn": "Unable to sign in.",
   "unableToRegister": "Unable to register.",
+  "emailAlreadyRegistered": "This email address is already registered, please try another one.",
   "unableToLoadDashboard": "Unable to load dashboard data.",
   "myPatients": "My Patients",
   "patientsWithAppointments": "Patients who have had appointments with you.",

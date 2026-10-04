@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Doctor;
+use App\Models\Patient;
 use App\Models\Specialty;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -41,6 +42,50 @@ class AdminManagementTest extends TestCase
         $this->actingAs($admin)->deleteJson('/api/admin/doctors/'.$doctorId)
             ->assertOk()->assertJsonPath('status', true);
         $this->assertSoftDeleted('doctors', ['id' => $doctorId]);
+    }
+
+    public function test_admin_doctor_list_includes_paginated_doctors_and_relationship_details(): void
+    {
+        $admin = User::where('role', 'admin')->firstOrFail();
+
+        $this->actingAs($admin)->getJson('/api/admin/doctors')
+            ->assertOk()
+            ->assertJsonCount(5, 'data.doctors.data')
+            ->assertJsonStructure(['data' => ['doctors' => ['data' => [['id', 'name', 'email', 'specialty']]]]]);
+    }
+
+    public function test_admin_doctor_email_must_be_unique_across_roles_on_create_and_update(): void
+    {
+        $admin = User::where('role', 'admin')->firstOrFail();
+        $specialty = Specialty::firstOrFail();
+        $doctor = Doctor::with('user')->firstOrFail();
+
+        $this->actingAs($admin)->postJson('/api/admin/doctors', [
+            'name' => 'Duplicate Doctor',
+            'email' => $admin->email,
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'specialty_id' => $specialty->id,
+            'license_number' => 'MED-DUPLICATE-001',
+        ])->assertStatus(422)->assertJsonStructure(['data' => ['errors' => ['email']]]);
+
+        $this->actingAs($admin)->putJson('/api/admin/doctors/'.$doctor->id, [
+            'email' => $admin->email,
+        ])->assertStatus(422)->assertJsonStructure(['data' => ['errors' => ['email']]]);
+
+        $this->actingAs($admin)->putJson('/api/admin/doctors/'.$doctor->id, [
+            'email' => $doctor->user->email,
+        ])->assertOk();
+    }
+
+    public function test_patient_email_update_rejects_email_used_by_another_role(): void
+    {
+        $admin = User::where('role', 'admin')->firstOrFail();
+        $patient = Patient::firstOrFail();
+
+        $this->actingAs($admin)->putJson('/api/patients/'.$patient->id, [
+            'email' => $admin->email,
+        ])->assertStatus(422)->assertJsonStructure(['data' => ['errors' => ['email']]]);
     }
 
     public function test_non_admin_cannot_manage_doctors(): void
